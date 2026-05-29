@@ -18,6 +18,8 @@ import argparse
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 load_dotenv()
 
@@ -72,48 +74,94 @@ DETAIL_SCHEMA = {
 }
 
 
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+EXTRACT_LISTING_PROMPT = """Dari markdown halaman JobStreet berikut, ekstrak semua listing lowongan pekerjaan.
+Kembalikan HANYA JSON valid dengan format:
+{{
+  "jobs": [
+    {{
+      "title": "...",
+      "company": "...",
+      "location": "...",
+      "salary": "...",
+      "job_url": "...",
+      "posted_date": "...",
+      "tags": ["..."]
+    }}
+  ],
+  "has_next_page": true/false
+}}
+Jika tidak ada lowongan ditemukan, kembalikan {{"jobs": [], "has_next_page": false}}.
+
+MARKDOWN HALAMAN:
+{markdown}"""
+
+EXTRACT_DETAIL_PROMPT = """Dari markdown halaman detail lowongan berikut, ekstrak informasi lengkap.
+Kembalikan HANYA JSON valid dengan format:
+{{
+  "title": "...",
+  "company": "...",
+  "location": "...",
+  "salary": "...",
+  "job_type": "...",
+  "experience_required": "...",
+  "description": "...",
+  "responsibilities": ["..."],
+  "requirements": ["..."],
+  "skills": ["..."],
+  "benefits": ["..."]
+}}
+
+MARKDOWN HALAMAN:
+{markdown}"""
+
+
+def extract_with_claude(prompt: str) -> dict:
+    import anthropic
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    text = msg.content[0].text.strip()
+    # Ambil JSON dari response (kadang ada teks sebelum/sesudah JSON)
+    start = text.find("{")
+    end   = text.rfind("}") + 1
+    if start >= 0 and end > start:
+        return json.loads(text[start:end])
+    return {}
+
+
 def scrape_search_page(app, keyword: str, page: int) -> dict:
     url = SEARCH_URL.format(keyword=keyword.replace(" ", "+"), page=page)
     print(f"  Halaman {page}: {url}")
 
-    result = app.scrape_url(
-        url,
-        params={
-            "formats": ["extract"],
-            "extract": {
-                "prompt": (
-                    f"Ekstrak semua listing lowongan pekerjaan dari halaman hasil pencarian JobStreet "
-                    f"untuk keyword '{keyword}'. Untuk setiap lowongan, ambil: judul posisi, nama perusahaan, "
-                    f"lokasi, gaji (jika ada), URL detail, tanggal posting, dan tags."
-                ),
-                "schema": LISTING_SCHEMA
-            },
-            "waitFor": 3000
-        }
-    )
-    return result.get("extract", {})
+    result = app.scrape_url(url, formats=["markdown"], wait_for=4000, timeout=60000)
+    markdown = result.markdown or ""
+
+    if not markdown or len(markdown) < 100:
+        print(f"    Markdown kosong/pendek ({len(markdown)} chars)")
+        return {"jobs": [], "has_next_page": False}
+
+    print(f"    Markdown: {len(markdown)} chars -> ekstrak dengan Claude...")
+    prompt = EXTRACT_LISTING_PROMPT.format(markdown=markdown[:12000])
+    return extract_with_claude(prompt)
 
 
 def scrape_job_detail(app, job_url: str) -> dict:
     if not job_url.startswith("http"):
         job_url = "https://id.jobstreet.com" + job_url
 
-    result = app.scrape_url(
-        job_url,
-        params={
-            "formats": ["extract"],
-            "extract": {
-                "prompt": (
-                    "Ekstrak detail lengkap lowongan ini: judul, perusahaan, lokasi, gaji, tipe pekerjaan, "
-                    "pengalaman yang dibutuhkan, pendidikan, deskripsi lengkap, tanggung jawab, "
-                    "persyaratan/kualifikasi, skills, dan benefit."
-                ),
-                "schema": DETAIL_SCHEMA
-            },
-            "waitFor": 3000
-        }
-    )
-    return result.get("extract", {})
+    result = app.scrape_url(job_url, formats=["markdown"], wait_for=4000, timeout=60000)
+    markdown = result.markdown or ""
+
+    if not markdown:
+        return {}
+
+    prompt = EXTRACT_DETAIL_PROMPT.format(markdown=markdown[:12000])
+    return extract_with_claude(prompt)
 
 
 def main():
@@ -138,12 +186,12 @@ Contoh penggunaan:
         sys.exit(1)
 
     try:
-        from firecrawl import FirecrawlApp
+        from firecrawl import V1FirecrawlApp
     except ImportError:
         print("ERROR: firecrawl-py belum terinstall. Jalankan: pip install firecrawl-py")
         sys.exit(1)
 
-    app = FirecrawlApp(api_key=FIRECRAWL_API_KEY)
+    app = V1FirecrawlApp(api_key=FIRECRAWL_API_KEY)
 
     print(f"Mencari lowongan di JobStreet: '{args.keyword}' (maks {args.max})")
     print("-" * 60)
