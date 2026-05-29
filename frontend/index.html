@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LokerMatch — Cari Lowongan Pintar (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🎯</span>
+      <div>
+        <h1>LokerMatch</h1>
+        <p class="tagline">Temukan lowongan paling cocok dari Glints, JobStreet, Loker.id & LinkedIn dalam satu pencarian.</p>
+      </div>
+    </div>
+    <span class="badge-proto">PROTOTYPE · Frontend Only</span>
+  </header>
+
+  <!-- STEPPER -->
+  <nav class="stepper">
+    <div class="stepper-item active" data-step="1"><span class="dot">1</span> Brief CV</div>
+    <div class="stepper-line"></div>
+    <div class="stepper-item" data-step="2"><span class="dot">2</span> Kriteria Pencarian</div>
+    <div class="stepper-line"></div>
+    <div class="stepper-item" data-step="3"><span class="dot">3</span> Hasil</div>
+  </nav>
+
+  <main class="container">
+
+    <!-- ============ STEP 1: BRIEF CV ============ -->
+    <section class="step-panel active" data-step="1">
+      <div class="card">
+        <h2>Langkah 1 — Buat Brief CV</h2>
+        <p class="muted">Profil singkat ini dipakai AI sebagai sinyal utama untuk menilai kesesuaian (match score) tiap lowongan. Semakin lengkap, semakin akurat.</p>
+        <form id="cv-form">
+          <div class="grid-2">
+            <label>Nama Lengkap
+              <input type="text" id="cv-name" placeholder="cth: Budi Santoso" />
+            </label>
+            <label>Target Posisi <span class="req">*</span>
+              <input type="text" id="cv-role" placeholder="cth: Frontend Engineer" />
+            </label>
+          </div>
+          <div class="grid-2">
+            <label>Total Pengalaman (tahun)
+              <input type="number" id="cv-years" min="0" max="40" placeholder="cth: 3" />
+            </label>
+            <label>Keahlian (pisahkan dengan koma) <span class="req">*</span>
+              <input type="text" id="cv-skills" placeholder="cth: React, TypeScript, Tailwind, REST API" />
+            </label>
+          </div>
+          <label>Ringkasan Profil
+            <textarea id="cv-summary" rows="3" placeholder="2–3 kalimat tentang keahlian utama & pencapaian Anda."></textarea>
+          </label>
+          <div class="actions">
+            <button type="button" id="btn-skip-cv" class="btn-ghost">Lewati dulu</button>
+            <button type="submit" class="btn-primary">Lanjut ke Pencarian →</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ STEP 2: KRITERIA ============ -->
+    <section class="step-panel" data-step="2">
+      <div class="card">
+        <div class="cv-recap-box" id="cv-recap-wrap">
+          <span class="muted small">Profil aktif:</span>
+          <div id="cv-recap" class="muted small">Belum mengisi CV (opsional).</div>
+        </div>
+
+        <h2>Langkah 2 — Kriteria Pencarian</h2>
+        <form id="search-form">
+          <label>Job Description / Posisi yang Diincar <span class="req">*</span>
+            <input type="text" id="f-jd" placeholder="cth: react developer membangun aplikasi web modern" />
+            <span class="hint">Masukkan posisi + keyword skill. Ini digabung dengan profil CV Anda untuk menghitung kesesuaian.</span>
+          </label>
+
+          <div class="grid-3">
+            <label>Lokasi Kerja
+              <select id="f-city"><option value="">Semua Kota</option></select>
+            </label>
+            <label>Tipe Lokasi
+              <select id="f-worktype">
+                <option value="">Semua</option>
+                <option>Onsite</option><option>Remote</option><option>Hybrid</option>
+              </select>
+            </label>
+            <label>Status Pekerjaan
+              <select id="f-employment">
+                <option value="">Semua</option>
+                <option>Full Time</option><option>Part Time</option>
+                <option>Kontrak</option><option>Magang</option><option>Freelance</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid-3">
+            <label>Level Pengalaman
+              <select id="f-level">
+                <option value="">Semua</option>
+                <option>Fresh Graduate</option><option>Junior</option>
+                <option>Mid</option><option>Senior</option>
+              </select>
+            </label>
+            <label>Gaji Minimum (Rp/bulan)
+              <input type="number" id="f-salary" min="0" step="500000" placeholder="cth: 10000000" />
+            </label>
+            <label>Tanggal Posting
+              <select id="f-postdate">
+                <option value="">Kapan saja</option>
+                <option value="1">24 jam terakhir</option>
+                <option value="7">7 hari terakhir</option>
+                <option value="30">30 hari terakhir</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset class="sources">
+            <legend>Sumber Website</legend>
+            <label class="chk"><input type="checkbox" name="source" value="Glints" checked /> Glints</label>
+            <label class="chk"><input type="checkbox" name="source" value="JobStreet" checked /> JobStreet</label>
+            <label class="chk"><input type="checkbox" name="source" value="Loker.id" checked /> Loker.id</label>
+            <label class="chk"><input type="checkbox" name="source" value="LinkedIn" checked /> LinkedIn</label>
+          </fieldset>
+
+          <div class="prompt-box">
+            <div class="prompt-label">🪄 Prompt Akhir (otomatis dirakit dari CV + filter)</div>
+            <pre id="prompt-preview"></pre>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="btn-back-1" class="btn-ghost">← Kembali</button>
+            <button type="submit" class="btn-primary">🔍 Cari Lowongan</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ STEP 3: HASIL ============ -->
+    <section class="step-panel" data-step="3">
+      <div class="card">
+        <div class="results-top">
+          <h2>Langkah 3 — Hasil Pencarian</h2>
+          <div class="actions inline">
+            <button type="button" id="btn-back-2" class="btn-ghost">← Ubah Kriteria</button>
+            <button type="button" id="btn-new-search" class="btn-primary">Pencarian Baru</button>
+          </div>
+        </div>
+        <p id="results-summary" class="muted"></p>
+        <p class="hint">💡 Klik judul kolom untuk mengurutkan (klik lagi untuk membalik arah).</p>
+
+        <div class="table-wrap">
+          <table class="results-table">
+            <thead id="results-head"></thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+
+        <details class="prompt-result">
+          <summary>Lihat prompt akhir yang digunakan</summary>
+          <pre id="final-prompt-result"></pre>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>LokerMatch — prototipe UI. Data lowongan masih <strong>simulasi</strong>; scraping nyata (Glints/JobStreet/Loker.id/LinkedIn) akan ditangani backend WAT di fase berikutnya.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
