@@ -1,0 +1,74 @@
+{
+  "_instructions": "Salin file ini menjadi user_profile.json dan isi dengan data Anda. Hapus key _instructions ini.",
+
+  "name": "Nama Lengkap Anda",
+  "email": "email@anda.com",
+  "phone": "+62 812-3456-7890",
+  "location": "Jakarta, Indonesia",
+  "linkedin": "https://linkedin.com/in/username-anda",
+  "portfolio": "",
+
+  "summary": "Ringkasan profesional 2-3 kalimat. Ceritakan keahlian utama, pengalaman, dan nilai yang Anda bawa. Contoh: Profesional marketing dengan 5 tahun pengalaman di industri FMCG, spesialisasi digital marketing dan pertumbuhan brand. Terbukti meningkatkan engagement organik 40% di 2 perusahaan terakhir.",
+
+  "experience": [
+    {
+      "company": "Nama Perusahaan Terakhir",
+      "title": "Jabatan Anda",
+      "period": "Jan 2022 - Sekarang",
+      "location": "Jakarta, Indonesia",
+      "achievements": [
+        "Pencapaian utama dengan angka — contoh: Meningkatkan revenue produk X sebesar 35% dalam 6 bulan pertama",
+        "Pencapaian kedua — contoh: Memimpin tim 5 orang untuk re-launch campaign digital berhasil reach 2 juta impressi",
+        "Pencapaian ketiga — contoh: Mengoptimalkan proses pelaporan sehingga menghemat 8 jam kerja per minggu"
+      ]
+    },
+    {
+      "company": "Perusahaan Sebelumnya",
+      "title": "Jabatan Sebelumnya",
+      "period": "Jun 2019 - Des 2021",
+      "location": "Bandung, Indonesia",
+      "achievements": [
+        "Pencapaian di perusahaan ini",
+        "Pencapaian lain"
+      ]
+    }
+  ],
+
+  "education": [
+    {
+      "institution": "Nama Universitas",
+      "degree": "S1 Manajemen / S1 Ilmu Komputer / dll",
+      "year": "2019",
+      "gpa": "3.75"
+    }
+  ],
+
+  "skills": {
+    "technical": [
+      "Contoh: Python", "SQL", "Google Analytics", "Meta Ads Manager", "Figma"
+    ],
+    "soft_skills": [
+      "Contoh: Project Management", "Komunikasi Lintas Fungsi", "Analisis Data", "Problem Solving"
+    ],
+    "languages": [
+      "Bahasa Indonesia (Native)",
+      "English (Professional — TOEFL 580 / IELTS 6.5)"
+    ]
+  },
+
+  "certifications": [
+    {
+      "name": "Nama Sertifikasi",
+      "issuer": "Lembaga Penerbit (Google, HubSpot, PMI, dll)",
+      "year": "2023"
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "Nama Project",
+      "description": "Deskripsi singkat dan hasil yang dicapai",
+      "tech_used": ["Tool 1", "Tool 2"]
+    }
+  ]
+}

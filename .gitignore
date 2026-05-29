@@ -1,0 +1,15 @@
+.env
+.tmp/
+credentials.json
+token.json
+service_account.json
+user_profile.json
+auth_url.txt
+auth_log.txt
+auth_output.txt
+.remember/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
