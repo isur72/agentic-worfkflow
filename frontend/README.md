@@ -32,9 +32,14 @@ python -m http.server 8000
    - Level pengalaman, Gaji minimum, Tanggal posting
    - Sumber website (centang yang ingin di-scrape)
    - **Preview "Prompt Akhir"** dirakit otomatis dari CV + filter (real-time).
-3. **Hasil** — tabel lowongan dengan **header kolom yang bisa diklik untuk sorting**
-   (Match %, Posisi, Perusahaan, Lokasi, Status, Gaji, Tanggal, Sumber). Klik sekali
-   untuk urut, klik lagi untuk balik arah.
+3. **Hasil** — tabel lowongan dengan fitur lengkap:
+   - **Header kolom diklik untuk sorting** (Match %, Posisi, Perusahaan, Lokasi, Status, Gaji, Tanggal, Sumber); klik lagi untuk balik arah.
+   - **Kartu statistik**: jumlah lowongan, match tertinggi, rata-rata gaji, sumber terbanyak, jumlah tersimpan.
+   - **Sub-filter hasil**: cari teks (posisi/perusahaan/skill/kota), slider match minimum, toggle "hanya tersimpan".
+   - **Pagination** (8 lowongan per halaman).
+   - **Klik baris → modal detail**: deskripsi, skill (skill yang Anda punya disorot hijau), **rincian match score per komponen**, keyword yang cocok, tombol **Simpan** & **Generate Resume** (menampilkan brief yang akan dikirim ke `tools/generate_resume.py`).
+   - **Simpan/bookmark lowongan** & **Brief CV** tersimpan otomatis di browser (localStorage) — bertahan saat halaman dimuat ulang.
+   - **Loading state** (skeleton + spinner) yang mensimulasikan proses scraping + ranking.
 
 ## Logika Match Score (0–100)
 

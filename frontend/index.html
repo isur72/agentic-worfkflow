@@ -150,8 +150,19 @@
             <button type="button" id="btn-new-search" class="btn-primary">Pencarian Baru</button>
           </div>
         </div>
+        <div id="stats" class="stats"></div>
+
+        <div class="subfilter">
+          <input type="search" id="rf-text" placeholder="🔎 Saring hasil (posisi, perusahaan, skill, kota)…" />
+          <label class="rf-match-wrap">Match min
+            <input type="range" id="rf-match" min="0" max="100" step="5" value="0" />
+            <span id="rf-match-val">0%</span>
+          </label>
+          <label class="chk"><input type="checkbox" id="rf-saved" /> ★ Hanya tersimpan</label>
+        </div>
+
         <p id="results-summary" class="muted"></p>
-        <p class="hint">💡 Klik judul kolom untuk mengurutkan (klik lagi untuk membalik arah).</p>
+        <p class="hint">💡 Klik judul kolom untuk mengurutkan · klik baris untuk lihat detail & rincian match.</p>
 
         <div class="table-wrap">
           <table class="results-table">
@@ -159,6 +170,8 @@
             <tbody id="results-body"></tbody>
           </table>
         </div>
+
+        <div id="pagination" class="pagination"></div>
 
         <details class="prompt-result">
           <summary>Lihat prompt akhir yang digunakan</summary>
@@ -168,6 +181,14 @@
     </section>
 
   </main>
+
+  <!-- MODAL DETAIL LOWONGAN -->
+  <div id="modal" class="modal">
+    <div class="modal-card">
+      <button id="modal-close" class="modal-close" aria-label="Tutup">×</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
 
   <footer class="footer">
     <p>LokerMatch — prototipe UI. Data lowongan masih <strong>simulasi</strong>; scraping nyata (Glints/JobStreet/Loker.id/LinkedIn) akan ditangani backend WAT di fase berikutnya.</p>
