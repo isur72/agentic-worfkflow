@@ -18,6 +18,8 @@ const state = {
   cv: null,            // brief CV hasil Step 1
   filters: null,       // kriteria Step 2
   results: [],         // hasil pencarian (sudah diberi matchScore)
+  allJobs: [],         // dataset aktif (live dari jobs.json, atau mock)
+  dataSource: "mock",  // "live" | "mock"
   sortKey: "matchScore",
   sortDir: "desc",     // "asc" | "desc"
 };
@@ -124,7 +126,7 @@ function computeMatchScore(job, cv, filters) {
 //  PENCARIAN — mensimulasikan scraping + filtering + ranking
 // ============================================================
 function searchJobs(cv, filters) {
-  return MOCK_JOBS
+  return state.allJobs
     // Hard filter: hanya sumber yang dipilih user
     .filter((j) => filters.sources.includes(j.source))
     // Hard filter: status pekerjaan (jika dipilih)
@@ -340,12 +342,59 @@ function renderResults() {
 }
 
 // ============================================================
+//  PEMUATAN DATA — live (jobs.json dari adapter WAT) atau fallback mock
+// ============================================================
+// Pastikan tiap lowongan punya objek Date `postedDate` untuk sorting/tampilan.
+function hydrate(jobs) {
+  jobs.forEach((j) => {
+    if (!(j.postedDate instanceof Date)) {
+      const d = new Date();
+      d.setDate(d.getDate() - (j.postedDaysAgo || 0));
+      j.postedDate = d;
+    }
+  });
+  return jobs;
+}
+
+async function loadJobs() {
+  // Coba ambil data live yang dihasilkan tools/export_jobs_for_frontend.py.
+  try {
+    const res = await fetch("jobs.json", { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      const jobs = Array.isArray(data) ? data : data.jobs;
+      if (jobs && jobs.length) {
+        state.dataSource = "live";
+        return hydrate(jobs);
+      }
+    }
+  } catch (e) {
+    // file:// atau jobs.json tidak ada -> pakai mock. Ini normal untuk demo.
+  }
+  state.dataSource = "mock";
+  return hydrate(MOCK_JOBS);
+}
+
+function renderDataSourceBadge() {
+  const el = $("#data-source");
+  if (!el) return;
+  if (state.dataSource === "live") {
+    el.innerHTML = `<span class="ds live">● DATA LIVE</span> ${state.allJobs.length} lowongan dari scraper`;
+  } else {
+    el.innerHTML = `<span class="ds mock">● DATA SIMULASI</span> ${state.allJobs.length} lowongan contoh — jalankan <code>tools/export_jobs_for_frontend.py</code> untuk data live`;
+  }
+}
+
+// ============================================================
 //  INIT
 // ============================================================
-function init() {
+async function init() {
+  state.allJobs = await loadJobs();
+  renderDataSourceBadge();
+
   // isi dropdown kota
   const citySel = $("#f-city");
-  [...new Set(MOCK_JOBS.map((j) => j.city))].sort().forEach((c) => {
+  [...new Set(state.allJobs.map((j) => j.city))].sort().forEach((c) => {
     const o = document.createElement("option"); o.value = c; o.textContent = c; citySel.appendChild(o);
   });
 

@@ -60,8 +60,42 @@ frontend/
   data.js      # MOCK_JOBS (skema menyerupai output scraper agar mudah diintegrasi)
 ```
 
-## Rencana Integrasi Backend (fase berikutnya)
+## Jembatan ke Backend WAT (sudah tersedia)
 
-- Ganti `MOCK_JOBS` dengan endpoint yang memanggil scraper WAT per sumber.
-- Pindahkan `computeMatchScore` ke backend (atau LLM) untuk ranking semantik yang lebih kuat.
-- Tambah pagination, simpan/lamar lowongan, dan generate resume tertarget (sudah ada `tools/generate_resume.py`).
+Frontend otomatis memuat **data live** dari `frontend/jobs.json` bila ada
+(`app.js → loadJobs()`); jika tidak ada (mis. dibuka via `file://` atau belum
+scraping), otomatis **fallback ke data simulasi** `MOCK_JOBS`. Indikator sumber
+data ("DATA LIVE" / "DATA SIMULASI") tampil di atas halaman.
+
+Pipeline data live:
+
+```bash
+# 1. Scrape lowongan nyata (backend WAT yang sudah ada)
+python tools/scrape_jobstreet.py "data analyst" --max 50 --detail
+#    -> menghasilkan .tmp/jobs_data_analyst_<timestamp>.json
+
+# 2. Normalisasi hasil scraping ke skema frontend
+python tools/export_jobs_for_frontend.py            # ambil file .tmp terbaru
+#    atau gabungkan beberapa sumber:
+python tools/export_jobs_for_frontend.py .tmp/jobs_glints.json:Glints .tmp/jobs_js.json:JobStreet
+#    -> menghasilkan frontend/jobs.json
+
+# 3. Jalankan frontend lewat http server -> data live otomatis terbaca
+cd frontend && python -m http.server 8000
+```
+
+`tools/export_jobs_for_frontend.py` adalah adapter deterministik (tanpa API
+berbayar) yang menormalkan output scraper:
+- `salary` string ("Rp 8.000.000 - Rp 12jt") → `salaryMin`/`salaryMax`
+- `posted_date` ("2 hari lalu"/"kemarin"/ISO) → `postedDaysAgo`
+- `job_type` → `employment`; `experience_required` → `level`
+- `location` → `city` + deteksi `workType` (Remote/Hybrid/Onsite)
+- dedup berdasarkan id, gabung multi-sumber
+
+> `frontend/jobs.json` adalah data hasil generate dan **di-gitignore** (tidak di-commit).
+
+## Rencana Lanjutan
+
+- Tambah scraper untuk Glints / Loker.id / LinkedIn (skema output samakan dengan JobStreet → langsung kompatibel dengan adapter).
+- Pindahkan/perkuat `computeMatchScore` dengan ranking semantik (LLM/embedding) di backend.
+- Pagination, simpan/lamar lowongan, dan generate resume tertarget (sudah ada `tools/generate_resume.py`).

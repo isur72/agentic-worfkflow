@@ -179,6 +179,16 @@ button { cursor: pointer; font-size: 14px; font-weight: 600; border-radius: 9px;
 .prompt-result summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--primary); }
 .prompt-result pre { background: #0f172a; border-radius: 10px; margin-top: 8px; }
 
+/* Data source badge */
+.data-source {
+  font-size: 12px; color: var(--muted); margin: 0 2px 12px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.data-source code { background: #eceef4; padding: 1px 6px; border-radius: 4px; font-size: 11px; }
+.ds { font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.ds.live { background: #dcfce7; color: #15803d; }
+.ds.mock { background: #fef3c7; color: #b45309; }
+
 /* Footer */
 .footer { text-align: center; font-size: 12px; color: var(--muted); padding: 20px; }
 

@@ -14,3 +14,6 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+
+# Data live hasil adapter (di-generate, jangan commit)
+frontend/jobs.json
